@@ -76,7 +76,7 @@ function audio(wave::Array{<:Real}, fs::Integer; autoplay=false,
     display(MIME("text/html"), markup)
 end
 
-function audio(wavfile:IOStream; t0::Real=0, t1::Real=-1,
+function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
     autoplay=false, normalize=true, title=nothing, extraprec=1000000)
 	seekstart(wavfile)
     _, _, _, opt = wavread(wavfile, subrange=0, format="native")
