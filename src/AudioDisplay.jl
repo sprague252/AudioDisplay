@@ -122,7 +122,7 @@ function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
 			end
 		end
 		seekstart(wavfile)
-		wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format=format)
+		wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format="native")
         # Call the array version of audio.
         audio(wave, fs; autoplay=autoplay, normalize=normalize, title=title)
     end
@@ -172,7 +172,7 @@ function audio(wavfile::AbstractString; t0::Real=0, t1::Real=-1,
 				s1 = nnchan
 			end
 		end
-		wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format=format)
+		wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format="native")
         # Call the array version of audio.
         audio(wave, fs; autoplay=autoplay, normalize=normalize, title=title)
     end
