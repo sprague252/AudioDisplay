@@ -87,46 +87,26 @@ function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
 	# Make sure we are at the begining of the file (because
 	# WAV.read_header does not)
 	seekstart(wavfile)
-    if (t0 == 0) && (t1 == -1)
-        # Playing the entire file. Just use the file as the source.
-        # Note that there is no normalize option here.
-        if isnothing(title)
-            ttxt = ""
-        else
-            ttxt = "<p><b>$title</b></p>\n"
-        end
-        if autoplay == true
-            aplay = " autoplay"
-        else
-            aplay = ""
-        end
-        markup = """$(ttxt)<audio controls="controls"$(aplay)>
-            <source src="$wavfile" />
-            Your browser does not support the audio element.
-            </audio>"""
-        display(MIME("text/html"), markup)
+    # Read file segment into an array.
+    csize=WAV.read_header(wavfile)
+    optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
+    nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
+    nnchan = nsamples ÷ Int(fmt.nchannels)
+    s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
+    if (t1 == -1)
+        s1 = nnchan
     else
-        # Playing part of a file. Read it to an array.
-        csize=WAV.read_header(wavfile)
-        optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
-        nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
-        nnchan = nsamples ÷ Int(fmt.nchannels)
-		s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
-		if (t1 == -1)
-			s1 = nnchan
-		else
-			s1 = div(floor(Int64, extraprec * t1 * fs),
-				extraprec) + 1
-			if s1 > nnchan
-				@warn "t1 value $t1 past the end of the file ... setting t1 to last sample"
-				s1 = nnchan
-			end
-		end
-		seekstart(wavfile)
-		wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format="native")
-        # Call the array version of audio.
-        audio(wave, fs; autoplay=autoplay, normalize=normalize, title=title)
+        s1 = div(floor(Int64, extraprec * t1 * fs),
+            extraprec) + 1
+        if s1 > nnchan
+            @warn "t1 value $t1 past the end of the file ... setting t1 to last sample"
+            s1 = nnchan
+        end
     end
+    seekstart(wavfile)
+    wave, _, _, _ = wavread(wavfile, subrange=s0:s1, format="native")
+    # Call the array version of audio.
+    audio(wave, fs; autoplay=autoplay, normalize=normalize, title=title)
 end
 
 function audio(wavfile::AbstractString; t0::Real=0, t1::Real=-1,
