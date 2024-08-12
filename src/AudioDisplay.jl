@@ -110,11 +110,11 @@ function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
         display(MIME("text/html"), markup)
     else
         # Playing part of a file. Read it to an array.
-		s0 = div(floor(Int64, extraprec * t0 * info["fs"]), extraprec) + 1
+		s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
 		if (t1 == -1)
 			s1 = nnchan
 		else
-			s1 = div(floor(Int64, extraprec * t1 * info["fs"]),
+			s1 = div(floor(Int64, extraprec * t1 * fs),
 				extraprec) + 1
 			if s1 > nnchan
 				@warn "t1 value $t1 past the end of the file ... setting t1 to last sample"
@@ -161,11 +161,11 @@ function audio(wavfile::AbstractString; t0::Real=0, t1::Real=-1,
         display(MIME("text/html"), markup)
     else
         # Playing part of a file. Read it to an array.
-		s0 = div(floor(Int64, extraprec * t0 * info["fs"]), extraprec) + 1
+		s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
 		if (t1 == -1)
 			s1 = nnchan
 		else
-			s1 = div(floor(Int64, extraprec * t1 * info["fs"]),
+			s1 = div(floor(Int64, extraprec * t1 * fs),
 				extraprec) + 1
 			if s1 > nnchan
 				@warn "t1 value $t1 past the end of the file ... setting t1 to last sample"
