@@ -2,7 +2,7 @@ Base.__precompile__(true)
 """
 AudioDisplay is a module that includes a function to "display" audio in an iJulia notebook
 (such as Jupyter Lab or Jupyter notebook) so that is can be played by the browser using
-the built-in HTML5 audio element.
+the built-in HTML5 audio element. (This module was originally based on the code from the AudioDisplay.jl in WAV.jl.)
 """
 module AudioDisplay
 export audio
@@ -69,6 +69,7 @@ function audio(wave::Array{<:Real}, fs::Integer; autoplay=false,
     else
         aplay = ""
     end
+    # HTML code below taken from WAV.jl AudioDisplay source.
     markup = """$(ttxt)<audio controls="controls"$(aplay)>
             <source src="data:audio/wav;base64,$data" type="audio/wav" />
             Your browser does not support the audio element.
@@ -86,10 +87,6 @@ function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
 	# Make sure we are at the begining of the file (because
 	# WAV.read_header does not)
 	seekstart(wavfile)
-	csize=WAV.read_header(wavfile)
-    optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
-	nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
-    nnchan = nsamples ÷ Int(fmt.nchannels)
     if (t0 == 0) && (t1 == -1)
         # Playing the entire file. Just use the file as the source.
         # Note that there is no normalize option here.
@@ -110,6 +107,10 @@ function audio(wavfile::IOStream; t0::Real=0, t1::Real=-1,
         display(MIME("text/html"), markup)
     else
         # Playing part of a file. Read it to an array.
+        csize=WAV.read_header(wavfile)
+        optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
+        nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
+        nnchan = nsamples ÷ Int(fmt.nchannels)
 		s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
 		if (t1 == -1)
 			s1 = nnchan
@@ -133,14 +134,6 @@ function audio(wavfile::AbstractString; t0::Real=0, t1::Real=-1,
     _, _, _, opt = wavread(wavfile, subrange=0, format="native")
     fmt = WAV.getformat(opt)
     fs = Int(fmt.sample_rate)
-	# wavfile is a filename. Open it first to call WAV.read_header.
-	wfile = open(wavfile, "r")
-	csize=WAV.read_header(wfile)
-	# Close the file.
-	close(wfile)
-    optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
-	nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
-    nnchan = nsamples ÷ Int(fmt.nchannels)
     if (t0 == 0) && (t1 == -1)
         # Playing the entire file. Just use the file as the source.
         # Note that there is no normalize option here.
@@ -161,6 +154,14 @@ function audio(wavfile::AbstractString; t0::Real=0, t1::Real=-1,
         display(MIME("text/html"), markup)
     else
         # Playing part of a file. Read it to an array.
+        # wavfile is a filename. Open it first to call WAV.read_header.
+        wfile = open(wavfile, "r")
+        csize=WAV.read_header(wfile)
+        # Close the file.
+        close(wfile)
+        optdsize = sum(sizeof.((chnk->chnk.data).(opt)))
+        nsamples = div(csize - 16 - optdsize, div(Int(fmt.nbits), 8))
+        nnchan = nsamples ÷ Int(fmt.nchannels)
 		s0 = div(floor(Int64, extraprec * t0 * fs), extraprec) + 1
 		if (t1 == -1)
 			s1 = nnchan
