@@ -2,7 +2,7 @@
 
 AudioDisplay is a module that includes a function to "display" audio in
 an iJulia notebook (such as Jupyter Lab or Jupyter notebook) so that is
-can be played by the browser using the built-in HTML5 audio element.
+can be played by the browser using the built-in HTML5 audio element. (This module was originally based on the code from the AudioDisplay.jl source in [WAV.jl](https://github.com/dancasimiro/WAV.jl).)
 
 ## Usage
 
