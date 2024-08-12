@@ -1,2 +1,2 @@
 # AudioDisplay
-Julia module to embed HTML5 audio player in Jupyter notebook
+Julia module to embed an HTML5 audio player in a Jupyter notebook
